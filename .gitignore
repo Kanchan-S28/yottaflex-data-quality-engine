@@ -1,0 +1,10 @@
+# Generated data and database
+data/
+*.db
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Test cache
+.pytest_cache/

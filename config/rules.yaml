@@ -1,0 +1,96 @@
+datasets:
+  customers:
+    file: data/input/customers.csv
+    primary_key: customer_id
+    required_columns: [customer_id, customer_name, email, age, created_at]
+    rules:
+      - name: customer_id_not_null
+        type: completeness
+        column: customer_id
+        severity: critical
+      - name: customer_id_unique
+        type: uniqueness
+        column: customer_id
+        severity: critical
+      - name: age_range
+        type: range
+        column: age
+        min: 18
+        max: 100
+        severity: high
+      - name: email_present
+        type: completeness
+        column: email
+        severity: medium
+      - name: email_format
+        type: custom
+        expression: email
+        check: email
+        severity: medium
+
+  orders:
+    file: data/input/orders.csv
+    primary_key: order_id
+    required_columns: [order_id, customer_id, product_id, quantity, amount, order_timestamp]
+    rules:
+      - name: order_id_not_null
+        type: completeness
+        column: order_id
+        severity: critical
+      - name: order_id_unique
+        type: uniqueness
+        column: order_id
+        severity: critical
+      - name: quantity_positive
+        type: range
+        column: quantity
+        min: 1
+        max: 10000
+        severity: high
+      - name: amount_non_negative
+        type: range
+        column: amount
+        min: 0
+        max: 1000000
+        severity: high
+      - name: customer_reference
+        type: referential_integrity
+        column: customer_id
+        reference_dataset: customers
+        reference_column: customer_id
+        severity: critical
+      - name: product_reference
+        type: referential_integrity
+        column: product_id
+        reference_dataset: products
+        reference_column: product_id
+        severity: critical
+      - name: order_freshness
+        type: freshness
+        column: order_timestamp
+        max_age_days: 3650
+        severity: low
+      - name: quantity_amount_business_rule
+        type: custom
+        expression: quantity_amount
+        severity: high
+
+  products:
+    file: data/input/products.csv
+    primary_key: product_id
+    required_columns: [product_id, product_name, category, unit_price]
+    rules:
+      - name: product_id_unique
+        type: uniqueness
+        column: product_id
+        severity: critical
+      - name: unit_price_range
+        type: range
+        column: unit_price
+        min: 0.01
+        max: 100000
+        severity: high
+      - name: category_present
+        type: completeness
+        column: category
+        severity: medium
