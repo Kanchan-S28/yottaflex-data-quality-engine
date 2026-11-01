@@ -173,10 +173,34 @@ class DataQualityEngine:
 
 def report(db_path="data/quality.db"):
     with sqlite3.connect(db_path) as conn:
-        runs = pd.read_sql_query("SELECT * FROM runs ORDER BY started_at DESC", conn)
-        rules = pd.read_sql_query("SELECT dataset,rule_name,severity,checked_rows,failed_rows,passed FROM rule_results ORDER BY dataset,rule_name", conn)
-        rejects = pd.read_sql_query("SELECT dataset, COUNT(*) AS rejected_records FROM rejects GROUP BY dataset", conn)
+        runs = pd.read_sql_query(
+            "SELECT * FROM runs ORDER BY started_at DESC",
+            conn
+        )
+
+        if runs.empty:
+            print("\nNo pipeline runs found.")
+            return runs, pd.DataFrame(), pd.DataFrame()
+
+        latest_run_id = runs.iloc[0]["run_id"]
+
+        rules = pd.read_sql_query(
+            "SELECT dataset, rule_name, severity, checked_rows, "
+            "failed_rows, passed FROM rule_results "
+            "WHERE run_id = ? ORDER BY dataset, rule_name",
+            conn,
+            params=(latest_run_id,)
+        )
+
+        rejects = pd.read_sql_query(
+            "SELECT dataset, COUNT(*) AS rejected_records "
+            "FROM rejects WHERE run_id = ? GROUP BY dataset",
+            conn,
+            params=(latest_run_id,)
+        )
+
     print("\nLATEST RUNS\n", runs.head(5).to_string(index=False))
     print("\nRULE RESULTS\n", rules.to_string(index=False))
     print("\nREJECTED RECORDS\n", rejects.to_string(index=False))
+
     return runs, rules, rejects
