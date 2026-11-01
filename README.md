@@ -140,7 +140,7 @@ Results are specific to the local machine and execution environment.
 
 ## Submission checklist
 - [x] Run sample pipeline successfully.
-- [x] Run automated tests (3 passed).
+- [x] Run automated tests (7 passed).
 - [x] Run the 100,000-order generator and record runtime.
 - [ ] Review README and configuration.
 - [x] Push the project to a public GitHub repository.
