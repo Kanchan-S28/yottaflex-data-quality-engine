@@ -15,7 +15,7 @@ A local, configurable data-quality pipeline built for the YottaFlex.ai 72-hour D
 CSV inputs -> ingestion/schema validation -> configurable rule engine -> valid target + quarantine -> SQLite audit/reporting.
 
 ## Requirements
-- Python 3.9+
+- Python 3.12 (tested)
 - pip
 
 ## Setup
@@ -104,6 +104,7 @@ Custom expressions are intentionally allow-listed; arbitrary YAML/Python executi
 | order_timestamp | ISO timestamp | Order event time |
 
 ## Example validation/report queries
+
 ```sql
 -- Latest pipeline runs
 SELECT * FROM runs ORDER BY started_at DESC;
@@ -123,14 +124,24 @@ SELECT COUNT(*) AS published_orders,
        ROUND(SUM(amount), 2) AS published_revenue
 FROM target_orders;
 ```
-
 ## Performance measurement
+
 The run summary prints elapsed seconds and row counts. For the challenge, execute with 1,000 and 100,000 orders and record the observed duration on your machine. One simple optimization is to use vectorized Pandas checks and set-based reference lookups; for larger production workloads, use Spark distributed processing.
 
+### Observed local benchmark
+
+- Orders requested: 100,000
+- Total input rows: 100,130
+- Valid rows: 100,125
+- Rejected rows: 5
+- Observed execution time: 9.018 seconds
+
+Results are specific to the local machine and execution environment.
+
 ## Submission checklist
-- [ ] Run sample pipeline successfully.
-- [ ] Run `pytest -q` and capture passing test output.
-- [ ] Run the 100,000-row generator and record runtime.
+- [x] Run sample pipeline successfully.
+- [x] Run automated tests (3 passed).
+- [x] Run the 100,000-order generator and record runtime.
 - [ ] Review README and configuration.
-- [ ] Push the project to a **public** GitHub repository.
-- [ ] Paste the repository URL into the challenge form only after verifying the public link.
+- [x] Push the project to a public GitHub repository.
+- [ ] Paste the repository URL into the challenge form.
